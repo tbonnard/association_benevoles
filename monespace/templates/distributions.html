@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block script %}
+<script src= "{% static 'scripts/distrib_details_benevole.js' %}"></script>
+{% endblock %}
+
+
+{% block content %}
+
+
+
+<div class="top_bar_menu">
+
+    <div class="sub_nav_hor active">
+        <i class="fas fa-people-arrows"></i>Mes distributions à charge
+    </div>
+
+</div>
+
+
+<div class="container_master">
+
+<div class="container_master_mobile">
+
+    {% include 'distributions_list.html' %}
+
+
+</div>
+</div>
+{% endblock %}

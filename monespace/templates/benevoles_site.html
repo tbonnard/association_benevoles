@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block script %}
+<script src= "{% static 'scripts/scripts_benevoles.js' %}"></script>
+{% endblock %}
+
+{% block content %}
+
+<div class="top_bar_menu">
+
+    <a href="{% url 'location_details' location_id=location_id %}" class="sub_nav_hor" >
+    <div>
+        <i class="fas fa-map-marker-alt"></i>Retour au site
+    </div>
+    </a>
+
+    <div class="sub_nav_hor active">
+        <i class="fas fa-users"></i>Bénévoles actifs
+    </div>
+
+    <a href="{% url 'download_users_csv' %}?site={{location_id}}" class="sub_nav_hor" >
+        <div>
+            <i class="fas fa-cloud-download-alt"></i>Exporter<i class="fas fa-info-circle info_icon" title="Chaque ligne correspond à un bénévole par distribution. Si le bénévole est actif dans plusieurs distributions, il sera ainsi plusieurs fois dans le fichier"></i>
+        </div>
+    </a>
+
+</div>
+
+<div class="container_master">
+
+<div class="container_master_mobile">
+
+        {% include 'benevoles_list.html' %}
+
+</div>
+</div>
+
+{% endblock %}

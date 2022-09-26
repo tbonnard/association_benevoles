@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% load static %}
+
+    <link rel="icon" href="{% static 'images/favicon.ico' %}" >
+
+    <link href="{% static 'css/reset.css' %}" type="text/css" rel="stylesheet">
+    <link href="{% static 'css/styles.css' %}" type="text/css" rel="stylesheet">
+
+
+    <script src="https://kit.fontawesome.com/6ef435d88f.js" crossorigin="anonymous"></script>
+    <script src= "{% static 'scripts/nav.js' %}"></script>
+    <script src= "{% static 'scripts/sub_nav.js' %}"></script>
+
+    {% block script %}
+    {% endblock %}
+
+    <title>{% block title %}Mon Espace{% endblock %}</title>
+</head>
+<body>
+
+
+<div class="menu_icon">
+    <i id='menu' class="fas fa-bars"></i>
+<!--        <a href="{% url 'index' %}" id="menu_icon_image"><img src="{% static 'images/logo.svg' %}"></a>-->
+</div>
+
+<div class="sub_menu_icon">
+        <a><i id="sub_menu_icon" data-state="to_visible" class="fas fa-chevron-circle-down"></i></a>
+<!--        <a><i id="sub_menu_icon" data-state="to_visible" class="fas fa-ellipsis-h"></i></a>-->
+
+</div>
+
+<nav>
+    <div class='sidebar'>
+
+        <div class="items_nav">
+            {% if not request.user.is_authenticated %}
+
+            <div class="menu_button">
+                <a href="{% url 'login_view_admin' %}" >
+                    <button class="">Login de Demo</button>
+                </a>
+            </div>
+
+            <div>
+                <a href="{% url 'login_view' %}" >
+                    <div class="item_nav" data-path="login">
+                        <i class="fas fa-sign-in-alt"></i>Se connecter
+                    </div>
+                </a>
+            </div>
+            <div>
+                <a href="{% url 'register' %}" >
+                    <div class="item_nav" data-path="register">
+                        <i class="fas fa-plus-circle"></i>S'inscrire
+                    </div>
+                </a>
+            </div>
+            <div>
+                <a href="{% url 'faq' %}" >
+                    <div class="item_nav" data-path="faq">
+                        <i class="fas fa-question-circle"></i>FAQ
+                    </div>
+                </a>
+            </div>
+            {% else %}
+
+
+            <div>
+                <a href="{% url 'index' %}" >
+                    <div class="item_nav" data-path="">
+                        <i class="fas fa-home"></i>Tableau de bord
+                    </div>
+                </a>
+            </div>
+            <div>
+                <a href="{% url 'events_list_date'%}?from={% now 'Y-m-d' %}&to=" id="event_link_date">
+                    <div class="item_nav" data-path="event">
+                        <i class="fas fa-calendar-alt"></i>Recherche
+                    </div>
+                </a>
+            </div>
+            {% if request.user.user_type != 2 %}
+            <div>
+                <a href="{% url 'distributions' %}">
+                    <div class="item_nav" data-path="distribution">
+                    <i class="fas fa-people-arrows"></i>Distributions
+                    </div>
+                </a>
+            </div>
+
+            <div>
+                <a href="{% url 'locations' %}">
+                    <div class="item_nav" data-path="site">
+                    <i class="fas fa-map-marker-alt"></i>Sites
+                    </div>
+                </a>
+            </div>
+            {% if request.user.user_type == 1 %}
+
+            <div>
+                <a href="{% url 'all_users_site' %}">
+                    <div class="item_nav" data-path="benevoles">
+                    <i class="fas fa-users"></i>Bénévoles
+                    </div>
+                </a>
+            </div>
+            {% endif %}
+            {% endif %}
+
+        </div>
+
+        <div class="menu_end">
+                <div>
+                    <a href="{% url 'profile' %}">
+                        <div class="item_nav" data-path="profil">
+                            <i class="fas fa-user-circle" title="{{request.user.username}}"></i>Profil
+                            <span>{{request.user}}{% if request.user.user_type != 2 %} ({{request.user.get_user_type_display}}){% endif %}</span>
+                        </div>
+                    </a>
+                </div>
+            <div>
+                <a href="{% url 'faq' %}" >
+                    <div class="item_nav" data-path="faq">
+                        <i class="fas fa-question-circle"></i>FAQ
+                    </div>
+                </a>
+            </div>
+                <div>
+                    <a href="{% url 'logout_view' %}" >
+                        <div class="item_nav" data-path="logout">
+                            <i class="fas fa-sign-out-alt"></i>Se déconnecter
+                        </div>
+                    </a>
+                </div>
+            </div>
+
+
+        {% endif %}
+
+    </div>
+
+
+</nav>
+
+
+
+
+{% block content%}
+
+{% endblock %}
+
+</body>
+</html>

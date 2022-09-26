@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block content%}
+
+<div class="container_master">
+
+<div class="form_div_space">
+
+    <h3>Bon retour!</h3>
+
+    <form action="{% url 'login_view' %}" method='POST'>
+        {% csrf_token %}
+        {{ form.as_p}}
+        <input type='submit' value='Se connecter' class='input_btn'/>
+        <span class="info_text"><a href="{% url 'password_reset' %}" class="link_pink">Mot de passe/Nom utilisateur oublié?</a></span>
+    </form>
+    <p class="info_text">Vous n'avez pas encore de compte? <a href="{% url 'register' %}" class="link_pink">Vous inscrire ici</a></p>
+</div>
+</div>
+{% endblock %}

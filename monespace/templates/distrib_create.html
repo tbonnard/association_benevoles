@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block script %}
+<script src= "{% static 'scripts/scripts_distrib.js' %}"></script>
+{% endblock %}
+
+
+{% block content%}
+
+
+<div class="top_bar_menu">
+
+    <div class="sub_nav_hor active" id="distrib_details_menu">
+        <i class="fas fa-people-arrows"></i>Création de distribution
+    </div>
+
+    <a href="{% url 'index' %}" class="sub_nav_hor" >
+        <div>
+        <i class="fas fa-ban"></i>Annuler
+    </div>
+    </a>
+
+</div>
+
+
+<div class="container_master">
+
+<div class="container_master_mobile">
+
+
+<div class="form_div_space">
+
+    <h1>Créer un nouvelle soirée de distribution</h1>
+
+    <form  action="{% url 'distribution_create' location_id=location.uuid %}" method='POST'>
+        {% csrf_token %}
+        {{ form.as_p }}
+        <p id="id_dayValue"></p>
+        <input type='submit' id="confirm" value="Confirmer" class='input_btn'/>
+    </form>
+
+
+</div>
+
+</div>
+</div>
+
+{% endblock %}

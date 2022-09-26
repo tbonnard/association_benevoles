@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% load static %}
+
+
+{% block script %}
+<script src= "{% static 'scripts/date_to.js' %}"></script>
+<script src= "{% static 'scripts/distrib_details.js' %}"></script>
+<script src= "{% static 'scripts/scripts_benevoles.js' %}"></script>
+{% endblock %}
+
+{% block content %}
+
+<!--{% if request.user == distrib.event_manager or request.user.user_type == 1 %}-->
+<!--{% endif %}-->
+<div class="top_bar_menu">
+
+    <div class="sub_nav_hor active" id="distrib_details_menu">
+        <i class="fas fa-people-arrows"></i>Détails de la distribution
+    </div>
+
+    <a href="{% url 'distrib_users' distrib_id=distrib.uuid %}" class="sub_nav_hor" >
+        <div id="distrib_benevoles_menu">
+        <i class="fas fa-users"></i>Bénévoles
+        </div>
+    </a>
+
+    <a href="{% url 'events_list_date'%}?from={% now 'Y-m-d' %}&distrib={{distrib.uuid}}&to=" id="event_link_date_distrib_loc" class="sub_nav_hor" >
+        <div>
+        <i class="fas fa-calendar-alt"></i>Prochaines dates
+        </div>
+    </a>
+
+</div>
+
+
+<div class="container_master">
+
+<div class="container_master_mobile">
+
+    <div class="distrib_global">
+        <p>Nom: {{distrib.name}}</p>
+        <p>Journée: {{distrib.start_date|date:'l'}}</p>
+        <p>Heure: {{distrib.time_from}} - {{distrib.time_to}}</p>
+        <h4>Responsables</h4>
+            {% for i in distrib.event_managers.all %}
+            <p>{{i}}</p>
+        {% endfor %}
+        <h4>Alerte envoyée automatiquement</h4>
+        {% if distrib.pre_alert_non_attendees_status %}
+        <p>Une alerte automatique est envoyée 2 jours avant chaque distribution aux bénévoles non présents pour leur demander s'ils peuvent se libérer si le nombre de présent est en dessous de {{distrib.pre_alert_non_attendees_nb_attendees}}</p>
+        {% else %}
+        <p>Aucune alerte automatique est avant chaque distribution aux bénévoles non présents pour leur demander s'ils peuvent se libérer si le nombre de présent est en dessous de {{distrib.pre_alert_non_attendees_nb_attendees}}</p>
+        {% endif %}
+        <a id="icon_change_manager"><i  class="far fa-edit info_icon"></i>Pour modifier ces détails</a>
+
+        <form id="change_manager" method='POST' action="{% url 'change_distrib_manager' distrib_id=distrib.uuid %}">
+            {% csrf_token %}
+            {{formManager.as_p}}
+            <div>
+            <button class="change_manager_button" type="submit"><i id="icon_approve_change_manager" title="Valider le changement" class="fas fa-check-circle info_icon"></i></button>
+            <a><i id="icon_cancel_change_manager" title="Anuler le changement"  class="far fa-window-close info_icon"></i></a>
+            </div>
+        </form>
+
+
+    </div>
+
+</div>
+</div>
+{% endblock %}

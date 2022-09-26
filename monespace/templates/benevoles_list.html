@@ -1,0 +1,62 @@
+{% load static %}
+
+{% block script %}
+<script src= "{% static 'scripts/benevoles_list.js' %}"></script>
+{% endblock %}
+
+{% if request.user.user_type == 1 %}
+<p>Total des bénévoles <i>(incluant les désactivés)</i>: {{ users|length }}</p>
+{% else %}
+<p>Total des bénévoles <i>(actif, en attente)</i> : {{ users|length }}</p>
+{% endif %}
+
+<table class='table1'>
+            <thead>
+                <tr>
+                    <th class='table_heading'></th>
+                    <th class='table_heading'>Prénom</th>
+                    <th class='table_heading'>Nom</th>
+                    <th class='table_heading'>Nom d'utilisateur</th>
+                    <th class='table_heading'>Email</th>
+                    <th class='table_heading'>Téléphone</th>
+                    <th class='table_heading'>Type d'utilisateur</th>
+                    <th class='table_heading'>Envoyer un message</th>
+                    <th class='table_heading'>Distributions(s) / Site(s)</th>
+                    <th class='table_heading'>Modifier le bénévole</th>
+                    <th class='table_heading'>Dernière connexion</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for j in users %}
+                <tr>
+                    <td class='table_cell'>{% if j.profile_picture %}
+                        <img src="{{j.profile_picture.url}}">
+                        {% endif %}</td>
+                  {% if j.first_name == "" %}
+                    <td class='table_cell'>{{j.username}}</td>
+                    {% else %}
+                    <td class='table_cell'>{{j.first_name|default_if_none:j.username}}</td>
+                    {% endif %}
+                    <td class='table_cell'>{{j.last_name|default_if_none:""}}</td>
+                    <td class='table_cell'>{{j.username}}</td>
+                    <td class='table_cell'>{{j.email|default_if_none:""}}</td>
+                    <td class='table_cell'>{{j.tel|default_if_none:""}}</td>
+                    <td class='table_cell'>{{j.get_user_type_display}}</td>
+                    <td class='table_cell'><a id="message_icon_button" title="Envoyer un message à ce bénévole" data-user="{{j.uuid}}"><i class='fas fa-envelope'></i></a></td>
+                    <td class='table_cell'>
+                        {% for i in status_users_location %}
+                            {% if i.user == j%}
+                        <p><a href="{% url 'distrib_details' distrib_id=i.distrib.uuid %}">{{i.distrib}}</a> ({{i.get_status_display|default_if_none:""}}) / <a href="{% url 'users_site' location_id=i.location.uuid %}">{{i.location}}</a></p>
+                            {% endif %}
+                        {% endfor %}
+                    </td>
+                    <td class='table_cell'><a href="{% url 'profile_edit_admin' user_id=j.uuid %}"><i class="fas fa-edit"></i></a></td>
+                    <td class='table_cell'>{{j.last_login|date:'Y-m-d H:i:s'}}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+
+   <div id="send_messages_global">
+    {% include 'send_messages.html' %}
+    </div>

@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block script %}
+<script src= "{% static 'scripts/scripts_benevoles.js' %}"></script>
+<script src= "{% static 'scripts/distribution_benevole_list.js' %}"></script>
+{% endblock %}
+
+{% block content %}
+
+<div class="top_bar_menu">
+
+    <a href="{% url 'distrib_details' distrib_id=distrib.uuid %}" class="sub_nav_hor" >
+    <div>
+        <i class="fas fa-map-marker-alt"></i>Retour à la distribution
+    </div>
+    </a>
+
+    <div class="sub_nav_hor active">
+        <i class="fas fa-users"></i>Bénévoles actifs
+    </div>
+
+    <a href="{% url 'download_users_csv_distrib' %}?distrib={{distrib.uuid}}" class="sub_nav_hor" >
+        <div>
+            <i class="fas fa-cloud-download-alt"></i>Exporter
+        </div>
+    </a>
+
+</div>
+
+<div class="container_master">
+
+<div class="container_master_mobile">
+
+
+<p>Total des bénévoles <i>(actif, en attente)</i> pour le site: {{ status_users_location.count }}</p>
+
+    {% if status_users_location|length > 0 %}
+        <table class='table1'>
+            <thead>
+                <tr>
+                    <th class='table_heading'></th>
+                    <th class='table_heading'>Prénom</th>
+                    <th class='table_heading'>Nom</th>
+                    <th class='table_heading'>Nom d'utilisateur</th>
+                    <th class='table_heading'>Email</th>
+                    <th class='table_heading'>Téléphone</th>
+                    <th class='table_heading'>Dernière présence</th>
+                    <th class='table_heading'>Envoyer un message</th>
+                    <th class='table_heading'>Statut</th>
+                    <th class='table_heading'>Mise à jour du statut</th>
+                    <th class='table_heading'>Modifier le bénévole</th>
+                    <th class='table_heading'>Dernière connexion</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for j in status_users_location%}
+                <tr>
+                    <td class='table_cell'>{% if j.user.profile_picture %}
+                        <img src="{{j.user.profile_picture.url}}">
+                        {% endif %}</td>
+                    {% if j.user.first_name == "" %}
+                    <td class='table_cell'>{{j.user.username}}</td>
+                    {% else %}
+                    <td class='table_cell'>{{j.user.first_name|default_if_none:j.user.username}}</td>
+                    {% endif %}
+                    <td class='table_cell'>{{j.user.last_name|default_if_none:""}}</td>
+                    <td class='table_cell'>{{j.user.username}}</td>
+                    <td class='table_cell'>{{j.user.email|default_if_none:""}}</td>
+                    <td class='table_cell'>{{j.user.tel|default_if_none:""}}</td>
+                    <td class='table_cell'>
+                        {% for key, value in last_attendance.items %}
+                        {% if key == j.user.uuid %}
+                        {{ value|date:'Y-m-d' }}
+                        {% endif %}
+                        {% endfor %}
+                    </td>
+                    <td class='table_cell'><a id="message_icon_button" title="Envoyer un message à ce bénévole" data-user="{{j.user.uuid}}"><i class='fas fa-envelope'></i></a></td>
+                    <td class='table_cell'><span class="user_status" data-user="{{j.user.uuid}}{{j.distrib.uuid}}" >{{j.get_status_display|default_if_none:""}}</span>
+
+                    <div class="form_status" data-user="{{j.user.uuid}}{{j.distrib.uuid}}" >
+                            <form method="POST" action="{% url 'user_distrib_update_status' distrib_id=j.distrib.uuid %}?id={{j.uuid}}">
+                                {% csrf_token %}
+                                {{form.status}}
+                                <button class="validate_user_status" title="Mettre à jour l'utilisateur"><i class="fas fa-check-circle"></i></button>
+                            </form>
+                        </div>
+
+                    </td>
+
+                    <td class='table_cell'>
+                        {% if j.distrib.event_manager == request.user and j.user == request.user %}
+                        <i class="fas fa-info-circle info_icon" title="Vous êtes le responsable de cette distribution donc vous ne pouvez pas modifier votre statut"></i>
+                        {% elif j.user == j.distrib.event_manager %}
+                        <i class="fas fa-info-circle info_icon" title="Vous ne pouvez pas modifier le statut du responsable de la distribution"></i>
+                        {% else %}
+                        {% if j.status != 2 %}
+                        <form method="POST" action="{% url 'distrib_users' distrib_id=j.distrib.uuid %}?id={{j.uuid}}">
+                            {% csrf_token %}
+                            <button class="validate_user_status" id="validate_pending_user_status" title="Activer l'utilisateur"><i class="fas fa-check-circle"></i></button>
+                        </form>
+                        <button class="button_form_status validate_user_status" title="Changer de statut pour l'utilisateur" data-user="{{j.user.uuid}}{{j.distrib.uuid}}" data-type="edit"><i class="far fa-edit"></i></button>
+                        {% else %}
+                        <button class="button_form_status validate_user_status" title="Changer de statut pour l'utilisateur" data-user="{{j.user.uuid}}{{j.distrib.uuid}}" data-type="edit"><i class="far fa-edit"></i></button>
+                        {% endif %}
+                        {% endif %}
+                    </td>
+                    <td class='table_cell'><a href="{% url 'profile_edit_manager' user_id=j.user.uuid distrib_id=j.distrib.uuid %}"><i class="fas fa-edit"></i></a></td>
+                    <td class='table_cell'>{{j.user.last_login|date:'Y-m-d H:i:s'}}</td>
+
+
+
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+
+
+        {% else %}
+        <p class="info_text">Aucune bénévole pour cette distribution</p>
+        {% endif %}
+
+
+    <div id="send_messages_global">
+    {% include 'send_messages.html' %}
+    </div>
+
+</div>
+</div>
+
+{% endblock %}

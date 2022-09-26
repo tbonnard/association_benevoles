@@ -1,0 +1,198 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block script %}
+<script src= "{% static 'scripts/scripts_event_attendee.js' %}"></script>
+<script src= "{% static 'scripts/event_details.js' %}"></script>
+{% endblock %}
+
+
+{% block content %}
+
+
+<div class="top_bar_menu">
+
+    <div class="sub_nav_hor active" id="eventDetails_menu">
+        <i class="fas fa-calendar-alt"></i>Détails de la distribution
+    </div>
+
+    <div class="sub_nav_hor" id="attendance_menu">
+        <i class="fas fa-users"></i>Présences ({{count_attendees}})
+    </div>
+
+
+</div>
+
+<div class="container_master">
+
+<div class="container_master_mobile">
+
+
+<div class="event_details_master" id="event_details">
+
+  <div class="event_details">
+
+    <div class="event_left">
+        <h2>{{ event.name }}</h2>
+        <p>{{ event.description }}</p>
+    </div>
+
+
+    <div class="event_right">
+
+      <div class="event_right_subitem">
+        <div class="event_right_subitem_box">
+        <i class="far fa-calendar-alt"></i><span class="name_event_right_subitem">DATE</span>
+            {% if event.is_recurring %}
+            <p>{{ date }}</p>
+            {% elif event.start_date != event.end_date and event.end_date is not none %}
+            <p>du {{ event.start_date }} au {{ event.end_date }}</p>
+            {% else %}
+            <p>{{ event.start_date }}</p>
+            {% endif %}
+        </div>
+      </div>
+
+      <div class="event_right_subitem">
+        <div class="event_right_subitem_box">
+        <i class="far fa-clock"></i><span class="name_event_right_subitem">HEURE</span>
+        <p>de {{ event.time_from }} à {{ event.time_to }}</p>
+        </div>
+      </div>
+
+      <div class="event_right_subitem">
+        <div class="event_right_subitem_box">
+        <i class="fas fa-map-marker-alt"></i><span class="name_event_right_subitem">LIEU</span>
+        <p><a href="{% url 'location_details' location_id=event.location.uuid %}">{{ event.location }}</a></p>
+        <p>{{ event.location.address }} - {{ event.location.zipcode }} - {{ event.location.city }}</p>
+        </div>
+      </div>
+
+
+     {% if not cancelled %}
+      <div class="event_right_subitem_attend">
+        {% now "Y-m-d" as todays_date %}
+            {% if todays_date <= date %}
+
+            {% if attendees %}
+            <form>
+              {% csrf_token %}
+              <button class="button_attendees button_white" data-type="decline" type='submit' data-eventid="{{event.uuid}}" data-date="{{date}}"><i class="fas fa-check-square icon_attend"></i>Je serai là</button>
+            </form>
+            {% else %}
+            <form>
+              {% csrf_token %}
+              <button class="button_attendees" data-type="attend" type='submit' data-eventid="{{event.uuid}}" data-date="{{date}}"><i class="far fa-square icon_attend"></i>Confirmer ma présence</button>
+            </form>
+            {% endif %}
+            {% endif %}
+      </div>
+      {% endif %}
+
+
+        {% if attendees and todays_date <= date  %}
+      <div class="event_right_subitem_attend">
+          <form>
+            <label for="plus_other">Venez vous avez d'autres personnes? Entrez le nombre de personnes vous accompagnant</label>
+            <input type="number" id="plus_other" name="plus_other" value="{{attendees.plus_other}}"  min="0" data-eventid="{{event.uuid}}" data-date="{{date}}">
+        </form>
+      </div>
+        {% endif %}
+
+      </div>
+
+  </div>
+
+
+{% if todays_date <= date %}
+
+      {% if event.event_manager == request.user or request.user.user_type == 1 %}
+    <div class="sub_nav">
+
+        <div id="cancel_div">
+            <button class="button_white" id="cancel_button">Annuler cette date</button></a>
+        </div>
+
+        <div id="cancel_validation">
+            <p>Êtes-vous certain d'annuler cette date ?</p>
+            {% if event.is_recurring %}
+            <a href="{% url 'event_delete_rec' event_id=event.uuid %}?date={{date}}" title="Oui, annuler la date du {{date}}"><i class="fas fa-check-square cancel_icon_event"></i></a>
+            {% else %}
+            <a href="{% url 'event_delete_all' event_id=event.uuid %}" title="Oui, annuler la date du {{date}}"><i class="fas fa-check-square cancel_icon_event"></i></a>
+            {% endif %}
+            <a title="Non, laisser la date"><i class="far fa-window-close" id="cancel_cancel"></i></a>
+        </div>
+
+
+    </div>
+        {% endif %}
+{% endif %}
+
+
+
+</div>
+
+
+
+<div class="event_attendees_list" id="attendance">
+
+    {% if all_attendees|length == 0 %}
+    <p class="info_text">Aucune personne présente pour le moment</p>
+    {% else %}
+
+            <table class='table1'>
+            <thead>
+                <tr>
+                    <th class='table_heading'>Prénom</th>
+                    <th class='table_heading'>Nom</th>
+                    <th class='table_heading'>Accompagné de</th>
+                    <th class='table_heading'>Envoyer un message</th>
+                    {% if request.user.user_type != 2 %}
+                    <th class='table_heading'>Nom d'utilisateur</th>
+                    <th class='table_heading'>Email</th>
+                    <th class='table_heading'>Téléphone</th>
+                    <th class='table_heading'>Dernière présence</th>
+                    {% endif %}
+
+                </tr>
+            </thead>
+            <tbody>
+            {% for j in all_attendees %}
+                <tr>
+                  {% if j.user.first_name == "" %}
+                    <td class='table_cell'>{{j.user.username}}</td>
+                    {% else %}
+                    <td class='table_cell'>{{j.user.first_name|default_if_none:j.user.username}}</td>
+                    {% endif %}
+                    <td class='table_cell'>{{j.user.last_name|default_if_none:""}}</td>
+                    <td class='table_cell'>{{j.plus_other|default_if_none:""}} personne(s)</td>
+                    <td class='table_cell'><a id="message_icon_button" title="Envoyer un message à ce bénévole" data-user="{{j.user.uuid}}"><i class='fas fa-envelope'></i></a></td>
+                    {% if request.user.user_type != 2 %}
+                    <td class='table_cell'>{{j.user.username}}</td>
+                    <td class='table_cell'>{{j.user.email|default_if_none:""}}</td>
+                    <td class='table_cell'>{{j.user.tel|default_if_none:""}}</td>
+                    <td class='table_cell'>
+                        {% for key, value in last_attendance.items %}
+                        {% if key == j.user.uuid %}
+                        {{ value|date:'Y-m-d' }}
+                        {% endif %}
+                        {% endfor %}
+                    </td>
+                    {% endif %}
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+
+    {% endif %}
+
+
+    <div id="send_messages_global">
+    {% include 'send_messages.html' %}
+    </div>
+
+
+</div>
+</div>
+</div>
+{% endblock %}

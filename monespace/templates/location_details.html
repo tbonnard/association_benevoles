@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% load static %}
+
+
+{% block script %}
+<script src= "{% static 'scripts/date_to.js' %}"></script>
+<script src= "{% static 'scripts/location_details.js' %}"></script>
+<script src= "{% static 'scripts/distrib_details_benevole.js' %}"></script>
+{% endblock %}
+
+{% block content %}
+
+{% if manager_location or request.user.user_type == 1 %}
+<div class="top_bar_menu">
+
+    <div class="sub_nav_hor active" id="location_details_menu">
+        <i class="fas fa-map-marker-alt"></i>Détails du site
+    </div>
+
+    <div class="sub_nav_hor" id="location_soirees_menu">
+        <i class="fas fa-people-arrows"></i>Distributions
+    </div>
+
+    <a href="{% url 'users_site' location_id=location.uuid %}" class="sub_nav_hor" >
+        <div>
+        <i class="fas fa-users"></i>Bénévoles
+        </div>
+    </a>
+
+    <a href="{% url 'events_list_date'%}?from={% now 'Y-m-d' %}&location={{location.uuid}}&all=true&to=" id="event_link_date_distrib_loc" class="sub_nav_hor" >
+        <div>
+        <i class="fas fa-calendar-alt"></i>Prochaines dates
+        </div>
+    </a>
+
+    <a href="{% url 'location_edit' location_id=location.uuid %}" class="sub_nav_hor" >
+        <div>
+        <i class="fas fa-edit"></i>Modifier le site
+        </div>
+    </a>
+
+</div>
+
+
+{% endif %}
+<div class="container_master">
+
+<div class="container_master_mobile">
+
+    <div class="location_global">
+        <div class="location_left">
+            <h3>Adresse du site de "{{ location.name }}"</h3>
+            <p>{{ location.address }}</p>
+            <p>{{ location.address_2 }}</p>
+            <p>{{ location.city }}</p>
+            <p>{{ location.zipcode }}</p>
+            <p>{{ location.get_country_display }}</p>
+            Site géré par:
+            {% for i in location.location_managers.all %}
+            <p>{{i}}</p>
+            {% endfor %}
+        </div>
+
+        <div class="location_right">
+            <div class="mapouter">
+                <div class="gmap_canvas">
+                    <iframe width="600" height="500" id="gmap_canvas" src="https://maps.google.com/maps?q={{location.address}},%20{{location.city}}%20{{location.zip_code}}%20{{location.country}}&t=&z=13&ie=UTF8&iwloc=&output=embed" frameborder="0" scrolling="no" marginheight="0" marginwidth="0"></iframe>
+                    <a href="https://123movies-to.org"></a>
+                    <br>
+                    <style>.mapouter{position:relative;text-align:right;height:500px;width:600px;}</style>
+                    <a href="https://www.embedgooglemap.net">google maps on websites</a>
+                    <style>.gmap_canvas {overflow:hidden;background:none!important;height:500px;width:600px;}</style>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div id="soirees">
+
+        {% include 'distributions_list.html' %}
+
+        <a href="{% url 'distribution_create' location_id=location.uuid %}" >
+         <button class=""><i class="fas fa-plus"></i> Distribution</button>
+        </a>
+
+    </div>
+</div>
+</div>
+{% endblock %}

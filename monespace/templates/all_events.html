@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block script %}
+<script src= "{% static 'scripts/scripts_all_events.js' %}"></script>
+<script src= "{% static 'scripts/scripts_events_attendee.js' %}"></script>
+{% endblock %}
+
+
+
+{% block content%}
+
+<div class="top_bar_menu">
+</div>
+
+<div class="top_bar">
+
+    <div class="search_events">
+
+        <span>Rechercher les distributions</span>
+
+    <!--    <label for="date_from">entre</label>-->
+        entre le
+        <input id="date_from" type="date">
+        et le
+    <!--    <label for="date_to">et</label>-->
+        <input id="date_to" type="date">
+        <span class="sub_nav_item"><img src="{% static 'images/arrow.svg' %}"><a href="" id="form_search_dates">Search</a></span>
+    </div>
+    <div class="items_box"><a id="box_to_items">Vue en liste</a><a id="items_to_box">Vue en bloc</a></div>
+</div>
+
+<div class="container_master">
+
+<!--<h1>Tous les évenements</h1>-->
+<div class="container_master_search">
+{% if events|length == 0 %}
+    <p class="info_text">Aucun résultat avec ces critères de recherche</p>
+{% else %}
+    <div id="box_items_distrib">
+        {% include "events_loop.html" %}
+    </div>
+
+    <div id="list_items_distrib">
+
+    <table class='table1'>
+            <thead>
+                <tr>
+                    <th class='table_heading'>Date</th>
+                    <th class='table_heading'>Nom</th>
+                    <th class='table_heading'>Heure</th>
+                    <th class='table_heading'>Site</th>
+                    <th class='table_heading'>Bénévoles présents</th>
+                    <th class='table_heading'>Ma présence</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for i in events %}
+            {% for key_1, value_1 in i.1.items %}
+            {% for key_2, value_2 in value_1.items %}
+            <tr>
+                <td class="table_cell">
+                    <a href="{% url 'event_details' event_id=value_2.uuid %}?date={{i.0|date:'Y-m-d'}}">{{i.0}}</a>
+                </td>
+                <td class="table_cell">{{value_2.name}}</td>
+                <td class="table_cell">{{value_2.time_from}} - {{value_2.time_to}}</td>
+                <td class="table_cell"><a href="{% url 'location_details' location_id=value_2.location.uuid %}">{{value_2.location.name}}</a></td>
+                <td class="table_cell attendance_benev" id="attend_event_number_manager_{{value_2.uuid}}{{i.0|date:'Y-m-d'}}" data-event="{{value_2.uuid}}" data-date="{{i.0|date:'Y-m-d'}}"></td>
+                <td class="table_cell">
+                    {% if value_2.event_date_cancelled == 0 %}
+                     {% now "Y-m-d" as todays_date %}
+                    {% if todays_date < i.0|date:'Y-m-d' %}
+                    <form class="attendees_list" id="parent_list_{{value_2.uuid}}{{i.0|date:'Y-m-d'}}" data-eventid="{{value_2.uuid}}" data-date="{{i.0|date:'Y-m-d'}}">
+                    </form>
+                    {% endif %}
+                    {% else %}
+                    <span>annulé</span>
+                    {% endif %}
+                </td>
+            </tr>
+
+            {% endfor %}
+            {% endfor %}
+            {% endfor %}
+            </tbody>
+        </table>
+
+    </div>
+
+{% endif %}
+</div>
+</div>
+
+{% endblock %}

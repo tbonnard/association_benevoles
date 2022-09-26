@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block content%}
+
+
+<div class="top_bar_menu">
+
+    {% if is_edit %}
+    <div class="sub_nav_hor active">
+        <i class="fas fa-map-marker-alt"></i>Modification de site
+    </div>
+    {% else %}
+    <div class="sub_nav_hor active">
+        <i class="fas fa-map-marker-alt"></i>Création de site
+    </div>
+    {% endif %}
+
+    {% if is_edit %}
+    <a href="{% url 'location_details' location_id=location_id %}" class="sub_nav_hor" >
+        <div>
+        <i class="fas fa-ban"></i>Annuler
+        </div>
+    </a>
+    {% else %}
+    <a href="{% url 'locations' %}" class="sub_nav_hor" >
+        <div>
+        <i class="fas fa-ban"></i>Annuler
+        </div>
+    </a>
+    {% endif %}
+
+</div>
+
+<div class="container_master">
+<div class="container_master_mobile">
+
+<div class="form_div_space">
+
+    {% if is_edit %}
+    <h3>Modifier "{{form.name.value}}"</h3>
+    {% else %}
+    <h3>Ajouter un site</h3>
+    {% endif %}
+
+    <form  {% if is_edit%} action="{% url 'location_edit' location_id=location_id %}"
+           {% else %} action="{% url 'location_create' %}"
+           {% endif %}
+           method='POST'>
+        {% csrf_token %}
+        {{ form.as_p }}
+        {% if is_edit %}
+            <p class="info_text">Pour enlever une personne étant responsable de distribution, il faut d'abord l'enlever de la distribution</p>
+        {% endif %}
+        <input type='submit' value="Confirmer" class='input_btn'/>
+    </form>
+</div>
+
+</div>
+</div>
+{% endblock %}

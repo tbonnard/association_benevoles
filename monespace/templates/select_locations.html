@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block script %}
+<script src= "{% static 'scripts/select_locations.js' %}"></script>
+{% endblock %}
+
+{% block content %}
+
+<div class="top_bar_menu">
+
+    <div class="sub_nav_hor active">
+        <i class="fas fa-people-arrows"></i>Séléction des distributions
+    </div>
+
+    <a href="{% url 'profile' %}" class="sub_nav_hor" >
+        <div>
+        <i class="fas fa-ban"></i>Annuler
+        </div>
+    </a>
+
+</div>
+
+<div class="container_master">
+<div class="container_master_mobile">
+
+    {% if all_locations|length == 0 %}
+        <p class="info_text">Aucune distribution à séléctionner actuellement</p>
+    {% else %}
+
+<h3>Sélectionner les distributions pour lesquelles vous souhaitez être bénevole</h3>
+
+
+<form action="{% url 'select_locations' %}" method="POST">
+    {% csrf_token %}
+    {{ request.user.id|json_script:"us" }}
+    <table class='table1'>
+            <thead>
+                <tr>
+                    <th class='table_heading'>Votre séléction</th>
+                    <th class='table_heading'>Nom</th>
+                    <th class='table_heading'>Adresse</th>
+                    <th class='table_heading'>Ville</th>
+                    <th class='table_heading'>Code postal</th>
+                    <th class='table_heading'>Gestionnaire</th>
+                    <th class='table_heading'>Voir sur la carte</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for j in all_locations%}
+                <tr>
+                    <td class='table_cell'>
+                        <a class="locations_checkbox" id="{{ j.uuid }}" name="{{ j }}" data-loc="{{ j.uuid }}" data-state="closed"><i class="fas fa-chevron-down"></i></a>
+                    </td>
+                    <td class='table_cell'><a class="locations_name" data-state="closed" data-loc="{{ j.uuid }}">{{j.name|default_if_none:""}}</a></td>
+                    <td class='table_cell'>{{j.address|default_if_none:""}}</td>
+                    <td class='table_cell'>{{j.city}}</td>
+                    <td class='table_cell'>{{j.zip_code}}</td>
+                    <td class='table_cell'>{% for z in j.location_managers.all %}<p>{{z}}</p>{% endfor %}</td>
+                    <td class='table_cell'><a href="https://maps.google.com/maps?q={{j.address}},%20{{j.city}}%20{{j.zip_code}}%20{{j.country}}" target="_blank"><i class="fas fa-globe"></i></a></td>
+                </tr>
+                <tr class="tr_td_row" data-loc="{{j.uuid}}">
+                    <td class="td_row" colspan="7" data-loc="{{j.uuid}}">
+
+                        {% for i in event_form_locations %}
+                            {% if i.location.pk == j.pk %}
+                                {% if request.user in i.event_managers.all %}
+                                <p>{{ i.name }} de {{ i.time_from}} à {{ i.time_to }}, géré par {% for z in i.event_managers.all %}{{ z }}{% endfor %}</p>
+                                {% else %}
+                                <p><input class="distrib_checkbox" type="checkbox" id="{{ i.uuid }}" name="distrib" value="{{ i.uuid }}" data-distrib_us="{{ i.event_manager.uuid }}">{{ i.name }} de {{ i.time_from}} à {{ i.time_to }}, géré par {% for z in i.event_managers.all %}{{ z }}<i data-distrib_us="{{ z.uuid }}" class="fas fa-info-circle info_icon" title="Vous ne pourrez pas enlever une distribution pour lequel vous en êtes le responsable"></i> {% endfor %}</p>
+                                {% endif %}
+                            {% endif %}
+                        {% endfor %}
+                    </td>
+                </tr>
+
+            {% endfor %}
+            </tbody>
+        </table>
+
+    <input type='submit' value="Confirmer" class='input_btn'/>
+        <p class="info_text">Chaque responsable de distributions séléctionnées devra confimer votre choix</p>
+
+</form>
+
+    {% endif %}
+
+</div>
+</div>
+{% endblock %}

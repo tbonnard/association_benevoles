@@ -1,0 +1,280 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load tz %}
+{% block script %}
+<script src= "{% static 'scripts/index.js' %}"></script>
+<script src= "{% static 'scripts/scripts_events_attendee.js' %}"></script>
+<script src= "{% static 'scripts/messages_items.js' %}"></script>
+{% endblock %}
+
+
+{% block content%}
+
+<div class="top_bar_menu">
+
+    {% if request.user.user_type != 2 %}
+    <div class="sub_nav_hor" id="events_manager_menu">
+        <i class="fas fa-calendar-alt"></i>Distributions à charge
+    </div>
+    {% endif %}
+
+    <div class="sub_nav_hor active" id="events_14_days_menu">
+        <i class="fas fa-user-check"></i>Présences
+    </div>
+
+    <div class="sub_nav_hor" id="messages_menu">
+        {% csrf_token %}
+        <i class="fas fa-envelope"></i>Messages<span id="count_messages_new"></span>
+        <div id="notification_messages_top" class="notification_messages"><span class="dot"></span></div>
+    </div>
+
+
+</div>
+
+<div class="container_master">
+<div class="container_master_mobile">
+
+    {% if request.user.user_type != 2 %}
+    {% csrf_token %}
+    <div id="events_manager">
+
+        {% if users_to_approve %}
+        <p class="info_text">Certain(s) bénévole(s) en attente d'approbation. Cliquer <a href="{% url 'distrib_users' distrib_id=distrib_users_to_approve %}">ici</a></p>
+        {% endif %}
+
+        <p class="info_text" id="no_distrib">Aucune soirée de distribution à votre charge</p>
+
+        <table class='table1'>
+            <thead>
+                <tr>
+                    <th class='table_heading'>Date</th>
+                    <th class='table_heading'>Nom</th>
+                    <th class='table_heading'>Site</th>
+                    <th class='table_heading'>Heure</th>
+                    <th class='table_heading'>Bénévoles présents</th>
+                    <th class='table_heading'>Envoyer un message</th>
+                    <th class='table_heading'>Annuler cette date</th>
+                </tr>
+            </thead>
+            <tbody id="tbody_event_manager">
+
+            
+            </tbody>
+        </table>
+
+
+        <div class="view_more_event_manager">
+            <button id='button_event_manager_load' data-ideventsearch="{{request.user.uuid}}" class="button_white">Voir plus</button>
+        </div>
+
+    </div>
+    {% endif %}
+
+
+<div id="events_14_days">
+
+{% if pending_events %}
+        <p class="info_text">Vous avez au moins un site en attente de confirmation par le responsable de la soirée:
+            {%for i in pending_events %}
+            {{i.distrib }}
+            {% endfor %}
+        </p>
+{% endif %}
+
+
+{% if events|length == 0 %}
+    <p class="info_text">Aucune présence prévue pour vous dans les 14 prochains jours</p>
+{% else %}
+
+<h3>Vos présences des 14 prochains jours</h3>
+
+    {% include 'events_loop.html' %}
+
+{% endif %}
+
+
+    <div class="">
+        <a href="{% url 'events_list_date'%}?from={% now 'Y-m-d' %}&to={{date_to|date:'Y-m-d'}}" >
+            <button class="button_white">Voir plus de distributions</button>
+        </a>
+    </div>
+
+
+</div>
+
+
+<div id="messages">
+
+    <div id="messages_sub_menu">
+        <a id="a_received_messages" class="active">Messages reçus</a>
+        <a id="a_sent_messages">Messages envoyés</a>
+    </div>
+
+
+
+    <div id="received_messages">
+
+        {% if to_user_messages|length == 0 %}
+        <p class="info_text">Aucun message reçu</p>
+        {% else %}
+
+        <div class="">
+
+        {% for i in to_user_messages %}
+
+            <div class="message_unit">
+                <div class="message_unit_div" data-msg="{{i.uuid}}" data-message="{{i.uuid}}">
+                    <span class="notification_messages_solo_div" data-message="{{i.uuid}}">nouveau
+<!--                    <span class="dot"  title="Marquer comme lu">-->
+<!--                    </span>-->
+                    </span>
+                    <a class="message_icon_next"><i id="icon_left_right_{{i.uuid}}" class="fas fa-2x fa-chevron-right"></i></a>
+                    <div class="line_top_message">
+                        <span>De {% if i.from_user == request.user  %}
+                                    vous même
+                                    {% else %}
+                                    {{i.from_user}}
+                                    {% endif %}</span>
+                        <span>, le {{i.created }}</span>
+                        {% if i.to_location %}
+                        <span>pour les bénévoles du site de {{i.to_location.name}}</span>
+                        {% elif i.to_event %}
+                            {% if i.to_event_date and i.to_event_group == 1 %}
+                            <span>pour les bénévoles de la distribution {{i.to_event.name}} du {{i.to_event_date }}</span>
+                            {% elif i.to_event_date and i.to_event_group == 2 %}
+                            <span>pour les bénévoles présents de la distribution {{i.to_event.name}} du {{i.to_event_date }}</span>
+                            {% elif i.to_event_date and i.to_event_group == 3 %}
+                            <span>pour les bénévoles non présents de la distribution {{i.to_event.name}} du {{i.to_event_date }}</span>
+                            {% elif i.to_event_manager_group == 1 %}
+                            <span>pour les responsables de la distribution {{i.to_event.name}}</span>
+                            {% else %}
+                            <span>pour les bénévoles de la distribution {{i.to_event.name}}</span>
+                            {% endif %}
+                        {% elif i.to_user %}
+                            <span>pour {% if i.to_user == request.user  %}
+                                    vous même
+                                    {% else %}
+                                    {{i.to_user}}
+                                    {% endif %}</span>
+                        {% else%}
+                        <span></span>
+                        {% endif %}
+                    </div>
+
+                    <div class="line_top_message subject_line">
+                        Sujet: <span id="subject_{{i.uuid}}">{{ i.subject }}</span>
+                    </div>
+
+                </div>
+
+                <div class="message_unit_div_answer" data-msg="{{i.uuid}}" data-state="closed">
+                    <div class="line_top_message_answer">
+                        {{ i.description }}
+                    </div>
+                    <div class="div_answer_input">
+                        <form method="POST">
+                            {% csrf_token %}
+                            <textarea id="msg{{i.uuid}}" class="input_answer" rows="1" cols="1" required placeholder="répondre à {{i.from_user}}"></textarea><button class="button_reply" data-msg="{{i.uuid}}" data-to="{{i.from_user.uuid}}"><i class="far fa-check-circle"></i>Confirmer</button>
+                        </form>
+                    </div>
+
+                </div>
+            </div>
+
+        {% endfor %}
+
+        </div>
+
+
+        {% endif %}
+
+
+    </div>
+
+
+
+
+
+      <div id="sent_messages">
+        {% if from_user_messages|length == 0 %}
+          <p class="info_text">Aucun message envoyé</p>
+        {% else %}
+
+        <div class="">
+
+        {% for i in from_user_messages %}
+
+            <div class="message_unit">
+                <div class="message_unit_div_sent" data-msg="sent_{{i.uuid}}">
+                    <a class="message_icon_next"><i id="icon_lr_sent_{{i.uuid}}" class="fas fa-2x fa-chevron-right"></i></a>
+                    <div class="line_top_message">
+                        <span>De {% if i.from_user == request.user  %}
+                                    vous même
+                                    {% else %}
+                                    {{i.from_user}}
+                                    {% endif %}</span>
+                        <span>, le {{i.created }}</span>
+                        {% if i.to_location %}
+                        <span>pour les bénévoles du site de {{i.to_location.name}}</span>
+                        {% elif i.to_event %}
+                            {% if i.to_event_date and i.to_event_group == 1 %}
+                            <span>pour les bénévoles de la distribution {{i.to_event.name}} du {{i.to_event_date }}</span>
+                            {% elif i.to_event_date and i.to_event_group == 2 %}
+                            <span>pour les bénévoles présents de la distribution {{i.to_event.name}} du {{i.to_event_date }}</span>
+                            {% elif i.to_event_date and i.to_event_group == 3 %}
+                            <span>pour les bénévoles non présents de la distribution {{i.to_event.name}} du {{i.to_event_date }}</span>
+                            {% elif i.to_event_manager_group == 1 %}
+                            <span>pour les responsables de la distribution {{i.to_event.name}}</span>
+                            {% else %}
+                            <span>pour les bénévoles de la distribution {{i.to_event.name}}</span>
+                            {% endif %}
+                        {% elif i.to_user %}
+                            <span>pour {% if i.to_user == request.user  %}
+                                    vous même
+                                    {% else %}
+                                    {{i.to_user}}
+                                    {% endif %}</span>
+                        {% else%}
+                        <span></span>
+                        {% endif %}
+                    </div>
+
+                    <div class="line_top_message subject_line">
+                        Sujet: <span id="subject_sent_{{i.uuid}}">{{ i.subject }}</span>
+                    </div>
+
+                </div>
+
+                <div class="message_unit_div_answer_sent" data-msg="sent_{{i.uuid}}" data-msgent="{{i.uuid}}" data-statesent="closed">
+                    <div class="line_top_message_answer">
+                        {{ i.description }}
+                    </div>
+
+                </div>
+            </div>
+
+        {% endfor %}
+
+        </div>
+
+
+        {% endif %}
+
+
+      </div>
+
+
+</div>
+
+
+
+
+<div id="send_messages_global">
+    {% include 'send_messages.html' %}
+</div>
+
+
+
+</div>
+</div>
+{% endblock %}

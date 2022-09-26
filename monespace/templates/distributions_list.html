@@ -1,0 +1,61 @@
+{% load static %}
+
+{% block script %}
+<script src= "{% static 'scripts/distributions.js' %}"></script>
+{% endblock %}
+
+
+        {% if events|length > 0 %}
+        <table class='table1'>
+            <thead>
+                <tr>
+                    <th class='table_heading'>Nom</th>
+                    <th class='table_heading'>Journée</th>
+                    <th class='table_heading'>Heure</th>
+                    <th class='table_heading'>Gestionnaire</th>
+                    <th class='table_heading'>Bénévoles actifs</th>
+                    <th class='table_heading'>Bénévoles en attente</th>
+                    <th class='table_heading'>Envoyer un message</th>
+                    <th class='table_heading'>Annuler toutes les dates futures</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for j in events %}
+                <tr class="tr_distrib" data-event="{{j.uuid}}">
+                    {% if not j.is_cancelled %}
+                    <td class='table_cell'><a href="{% url 'distrib_details' distrib_id=j.uuid %}" >{{j.name|default_if_none:""}}</a></td>
+                    {% else %}
+                    <td class='table_cell'>{{j.name|default_if_none:""}}</td>
+                    {% endif %}
+                    <td class='table_cell'>{{j.start_date|date:'l'}}</td>
+                    <td class='table_cell'>{{j.time_from|default_if_none:""}} - {{j.time_to|default_if_none:""}}</td>
+                    <td class='table_cell'>{% for i in j.event_managers.all %}
+                        <p>{{i}}</p>
+                        {% endfor %}
+                    </td>
+                    <td class='table_cell benevoles_number' data-event="{{j.uuid}}" data-type="active"></td>
+                    <td class='table_cell benevoles_number' data-event="{{j.uuid}}" data-type="pending"></td>
+                    <td class='table_cell'><a id="message_icon_button" title="Envoyer un message aux bénévoles de cette distribution" data-event="{{j.uuid}}"><i class='fas fa-envelope'></i></a></td>
+                    {% if j.is_cancelled %}
+                    <td class='table_cell' >annulée</td>
+                    {% else %}
+                    {% if j.event_manager == request.user or request.user.user_type == 1 %}
+                    <td class='table_cell' id="div_cancel_validation" data-event="{{j.uuid}}"><button class="button_form_status validate_user_status" title="Annuler toutes les futures dates" data-type="edit" data-event="{{j.uuid}}"><i class="far fa-trash-alt"></i></button></td>
+                    {% else %}
+                    <td class='table_cell'><i class="fas fa-info-circle info_icon" title="Seul le responsable de la distribution peut annuler"></i></td>
+                    {% endif %}
+                    {% endif %}
+
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+
+        {% else %}
+        <p class="info_text">Aucune distribution à votre charge</p>
+        {% endif %}
+
+
+    <div id="send_messages_global">
+    {% include 'send_messages.html' %}
+    </div>

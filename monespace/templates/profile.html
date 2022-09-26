@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+{%load static%}
+
+{% block script %}
+<script src= "{% static 'scripts/profile.js' %}"></script>
+{% endblock %}
+
+{% block content %}
+
+<div class="top_bar_menu">
+
+    <div class="sub_nav_hor active" id="profile_menu">
+        <i class="fas fa-user-circle"></i>Détails du profil
+    </div>
+
+    <div class="sub_nav_hor" id="locations_menu">
+        <i class="fas fa-people-arrows"></i>Mes choix de distributions
+    </div>
+
+    <a href="{% url 'profile_edit' %}" class="sub_nav_hor">
+        <div>
+        <i class="fas fa-edit"></i>Modifier mon profil
+        </div>
+    </a>
+
+    <a href="{% url 'change_password' %}" class="sub_nav_hor">
+        <div>
+        <i class="fas fa-unlock-alt"></i>Modifier mon mot de passe
+        </div>
+    </a>
+
+</div>
+
+<div class="container_master">
+
+<div class="container_master_mobile">
+
+
+<div id="profile">
+
+<h3>Votre profil</h3>
+{% if request.user.profile_picture %}
+<img src="{{request.user.profile_picture.url}}" class="profile_img">
+{% endif %}
+<p>{{request.user.username}}</p>
+<p>{{request.user.first_name|default_if_none:"" }}</p>
+<p>{{request.user.last_name|default_if_none:"" }}</p>
+<p>{{request.user.email|default_if_none:"" }}</p>
+<p>{{request.user.address|default_if_none:"" }}</p>
+<p>{{request.user.city|default_if_none:"" }}</p>
+<p>{{request.user.zip_code|default_if_none:"" }}</p>
+<p>{{request.user.tel|default_if_none:"" }}</p>
+
+
+{% if request.user.user_type != 2 %}
+    <p>Type d'utilisateur: {{request.user.get_user_type_display}}</p>
+{% endif %}
+
+
+</div>
+
+<div id="locations">
+
+
+    {% if distrib|length == 0 %}
+    <p class="info_text">Vous n'êtes actuellement associé à aucune distribution</p>
+    {% else  %}
+
+<table class='table1'>
+            <thead>
+                <tr>
+                    <th class='table_heading'>Nom</th>
+                    <th class='table_heading'>Journée</th>
+                    <th class='table_heading'>Heure</th>
+                    <th class='table_heading'>Gestionnaire</th>
+                    <th class='table_heading'>Mon statut</th>
+                    <th class='table_heading'>Site de distribution</th>
+                    <th class='table_heading'>Adresse</th>
+                    <th class='table_heading'>Voir sur la carte</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for j in distrib %}
+                <tr>
+                    {% if j.distrib.event_manager == request.user %}
+                    <td class='table_cell'><a href="{% url 'distrib_details' distrib_id=j.distrib.uuid %}">{{j.distrib.name|default_if_none:""}}</a></td>
+                    {% else %}
+                    <td class='table_cell'>{{j.distrib.name|default_if_none:""}}</td>
+                    {% endif %}
+                    <td class='table_cell'>{{j.distrib.start_date|date:'l'}}</td>
+                    <td class='table_cell'>{{j.distrib.time_from|default_if_none:""}} - {{j.distrib.time_to|default_if_none:""}}</td>
+                    <td class='table_cell'>{% for i in j.distrib.event_managers.all %}
+                        <p>{{i}}<a id="message_icon_button" title="Envoyer un message au gestionnaire de la distribution" data-user="{{i.uuid}}"><i class='fas fa-envelope'></i></a>
+                    {% endfor %}</p></td>
+                    <td class='table_cell'>{{j.get_status_display}}</td>
+                    <td class='table_cell'><a href="{% url 'location_details' location_id=j.location.uuid %}">{{j.location.name}}</a></td>
+                    <td class='table_cell'>{{j.location.address|default_if_none:""}} {{j.location.city|default_if_none:""}} {{j.location.zip_code|default_if_none:""}}</td>
+                    <td class='table_cell'><a href="https://maps.google.com/maps?q={{j.location.address}},%20{{j.location.city}}%20{{j.location.zip_code}}%20{{j.location.country}}" target="_blank"><i class="fas fa-globe"></i></a></td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+
+    {% endif %}
+
+
+       <div class="">
+            <a href="{% url 'select_locations' %}">
+                <button class="button_white">Modifier votre choix de distributions</button>
+            </a>
+        </div>
+
+
+    <div id="send_messages_global">
+    {% include 'send_messages.html' %}
+    </div>
+
+
+</div>
+
+</div>
+</div>
+{% endblock %}

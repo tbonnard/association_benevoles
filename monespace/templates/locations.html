@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% load static %}
+
+
+
+{% block script %}
+<script src= "{% static 'scripts/locations.js' %}"></script>
+{% endblock %}
+
+
+{% block content %}
+
+
+<div class="top_bar_menu">
+
+
+    {%if admin %}
+    <div class="sub_nav_hor active">
+        <i class="fas fa-map-marker-alt"></i>Tous les sites
+    </div>
+
+    <a href="{% url 'location_create' %}" class="sub_nav_hor" >
+        <div>
+        <i class="fas fa-plus-circle"></i>Créer un site
+        </div>
+    </a>
+
+    {% else %}
+
+    <div class="sub_nav_hor active">
+        <i class="fas fa-map-marker-alt"></i>Mes sites
+    </div>
+
+    {% endif %}
+
+</div>
+
+<div class="container_master">
+
+<div class="container_master_mobile">
+
+    {% if all_locations|length == 0 %}
+    <p class="info_text">Aucun site encore créé</p>
+    {% else %}
+    <table class='table1'>
+            <thead>
+                <tr>
+                    <th class='table_heading'>Nom</th>
+                    <th class='table_heading'>Adresse</th>
+                    <th class='table_heading'>Ville</th>
+                    <th class='table_heading'>Code postal</th>
+                    <th class='table_heading'>Gestionnaire</th>
+                    <th class='table_heading'>Voir sur la carte</th>
+                    <th class='table_heading'>Envoyer un message</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for j in all_locations%}
+                <tr>
+                    <td class='table_cell'><a href="{% url 'location_details' location_id=j.uuid %}">{{j.name|default_if_none:""}}</a></td>
+                    <td class='table_cell'>{{j.address|default_if_none:""}}</td>
+                    <td class='table_cell'>{{j.city}}</td>
+                    <td class='table_cell'>{{j.zip_code}}</td>
+                    <td class='table_cell'>{% for i in j.location_managers.all %}<p>{{i}}</p>{% endfor %}</td>
+                    <td class='table_cell'><a href="https://maps.google.com/maps?q={{j.address}},%20{{j.city}}%20{{j.zip_code}}%20{{j.country}}" target="_blank"><i class="fas fa-globe"></i></a></td>
+                    <td class='table_cell'><a id="message_icon_button" title="Envoyer un message aux bénévoles de ce site" data-site="{{j.uuid}}"><i class='fas fa-envelope'></i></a></td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+
+    {% endif %}
+
+
+    <div id="send_messages_global">
+    {% include 'send_messages.html' %}
+    </div>
+
+
+</div>
+</div>
+{% endblock %}

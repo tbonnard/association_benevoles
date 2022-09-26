@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{%load static%}
+
+{% block script %}
+<script src= "{% static 'scripts/user_prof_tel.js' %}"></script>
+{% endblock %}
+
+
+{% block content %}
+<div class="top_bar_menu">
+
+    <div class="sub_nav_hor active" id="profile_menu">
+        <i class="fas fa-user-circle"></i>Modification du profil
+    </div>
+
+    <a href="{% url 'profile' %}" class="sub_nav_hor" >
+        <div>
+        <i class="fas fa-ban"></i>Annuler
+    </div>
+    </a>
+
+</div>
+
+<div class="container_master">
+
+<div class="container_master_mobile">
+
+<div class="form_div_space">
+
+    <h3>Modifier votre profil</h3>
+    {% if request.user.profile_picture %}
+    <img src="{{request.user.profile_picture.url}}" class="profile_img">
+    {% endif %}
+    <p><label for="id_username">Nom d'utilisateur&nbsp;:</label> <p id="id_username">{{request.user.username}}</p>
+    <form method="POST" action=" {% url 'profile_edit' %}" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <input type='submit' id="confirm" value="Confirmer" class='input_btn'/>
+    </form>
+
+</div>
+</div>
+</div>
+{% endblock %}

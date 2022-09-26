@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block script %}
+<script src= "{% static 'scripts/scripts_event.js' %}"></script>
+{% endblock %}
+
+
+{% block content%}
+
+
+<div class="top_bar_menu">
+
+    <a href="{% url 'index' %}" class="sub_nav_hor" >
+        <div>
+        <i class="fas fa-ban"></i>Annuler
+    </div>
+    </a>
+
+</div>
+
+
+<div class="container_master">
+
+<div class="container_master_mobile">
+
+
+<div class="form_div_space">
+
+    <h3>Créer un nouvel événement</h3>
+
+    <form  action="{% url 'event_create' %}" method='POST'>
+        {% csrf_token %}
+        {% include "event_form.html" %}
+        {% include "event_form_only_rec.html" %}
+        <input type='submit' id="confirm" value="Confirmer" class='input_btn'/>
+
+    </form>
+
+</div>
+
+
+</div>
+</div>
+
+{% endblock %}

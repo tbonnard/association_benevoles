@@ -1,0 +1,65 @@
+
+
+
+<div>
+
+
+
+{% csrf_token %}
+
+    {% if events_manager|length == 0 %}
+    <p class="info_text">Aucun événement pour lequel vous êtes reponsable</p>
+    {% else %}
+
+    {% for i in events_manager %}
+    <div class="events_list_global">
+
+      <div class="events_list_left">
+<!--          <div class="vl"></div>-->
+        <i class="far fa-dot-circle"></i><span class="events_list_date">{{i.0}}</span>
+      </div>
+
+      <div class="events_list_right">
+        {% for j in i.1 %}
+          <div class="event_item">
+          <div class="events_list_right_subitem">
+            <h2><a href="{% url 'event_details' event_id=j.uuid %}?date={{i.0|date:'Y-m-d'}}">{{j}}</a></h2>
+              <div class="events_list_right_subitem_flex">
+                  <div class="events_list_right_subitem_flex_subitems">
+                    <div class="events_list_details_time_location">
+                        <i class="far fa-clock"></i><span>{{j.time_from}} à {{j.time_to}}</span>
+                    </div>
+                      <div class="events_list_details_time_location">
+                          <i class="fas fa-map-marker-alt"></i><span><a href="{% url 'location_details' location_id=j.location.uuid %}">{{j.location}}</a></span>
+                      </div>
+                      <div class="events_list_details_time_location">
+                          <i class="far fa-clock"></i><span id="attend_event_number_{{j.uuid}}{{i.0|date:'Y-m-d'}}" class="attend_event_number" data-eventid="{{j.uuid}}" data-date="{{i.0|date:'Y-m-d'}}"></span>
+                      </div>
+                  </div>
+                  <div class="events_list_right_subitem_flex_subitems">
+                      <p>{{j.description}}</p>
+                  </div>
+              </div>
+
+          </div>
+        {%if j.location in pending_location%}
+          <p class="info_text">en attente de confirmation du site demandé afin de pouvoir rejoindre cet évenement</p>
+            {% else %}
+
+          {% now "Y-m-d" as todays_date %}
+
+              {% if todays_date <= i.0|date:'Y-m-d' %}
+            <form class="attendees" id="parent_{{j.uuid}}{{i.0|date:'Y-m-d'}}" data-eventid="{{j.uuid}}" data-date="{{i.0|date:'Y-m-d'}}">
+            </form>
+            {% endif %}
+        {% endif %}
+          </div>
+        {% endfor %}
+      </div>
+
+    </div>
+    {% endfor %}
+
+    {% endif %}
+
+</div>

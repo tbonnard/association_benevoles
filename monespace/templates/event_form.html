@@ -1,0 +1,46 @@
+
+
+        <label>Nom de l'évenement</label>
+        <p>{{ form.name }}</p>
+        <label>Site de l'évenement</label>
+        <p>{{ form.location }}</p>
+        <label>Responsable de l'événement</label>
+        <p>{{ form.event_manager }}</p>
+        <label>Description</label>
+        <p>{{ form.description }}</p>
+
+        <div id="dates_event" data-original_start_date={{event.start_date|date:'Y-m-d'}}>
+           <div class='flex_div_form'>
+                <div class="sub_flex_div_form">
+                    <label>Date de début</label>
+                    <p>{{ form.start_date }}</p>
+                </div>
+                <div class="sub_flex_div_form">
+                    <label>Date de fin</label>
+                    <p>{{ form.end_date }}</p>
+                </div>
+            </div>
+        </div>
+
+       <div id="time_event">
+            <div id="times_div">
+                <div class='flex_div_form'>
+                    <div class="sub_flex_div_form times_subdiv">
+                        <label>Heure de début</label>
+                    <p>{{ form.time_from }}</p>
+                    </div>
+                     <div class="sub_flex_div_form times_subdiv">
+                        <label>Heure de fin</label>
+                        <p>{{ form.time_to }}</p>
+                    </div>
+                </div>
+                <div class="sub_flex_div_form">
+                    <label>ou dure toute la journée</label>
+            {{ form.is_full_day }}
+                </div>
+            </div>
+        </div>
+
+
+
+

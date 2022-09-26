@@ -1,0 +1,23 @@
+{% load static %}
+
+{% block script %}
+<script src= "{% static 'scripts/send_message.js' %}"></script>
+{% endblock %}
+
+
+<div id="send_message_div">
+
+<!--    <h3>Envoyer un message</h3>-->
+    <a><i id="close_message_box" class="far fa-times-circle"></i></a>
+
+           <form id="send_messages_form" method='POST'>
+                {% csrf_token %}
+                {{message_form.as_p}}
+               <button class="" type='button' id="send_messages_form_button">Envoyer le message</button>
+            </form>
+</div>
+
+
+<div id="success_message_result">
+    <p class="info_text">Le message a été envoyé avec succès</p>
+</div>

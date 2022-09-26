@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block script %}
+<script src= "{% static 'scripts/scripts_event.js' %}"></script>
+<script src= "{% static 'scripts/scripts_event_edit_rec.js' %}"></script>
+{% endblock %}
+
+
+{% block content%}
+
+
+<div class="top_bar_menu">
+
+    <a href="{% url 'event_details' event_id=event.uuid %}?date={{date}}" class="sub_nav_hor" >
+        <div>
+        <i class="fas fa-calendar-alt"></i>Retour à l'événement
+    </div>
+    </a>
+
+</div>
+
+<div class="container_master">
+
+<div class="container_master_mobile">
+
+
+<div class="form_div_space">
+
+<h3>Modifier "{{ form.name.value }}"</h3>
+
+   <fieldset>
+       <legend>Voulez vous modifier tous les évenements de cette récurrence?</legend>
+       <label for="no" class="container_radio_button">Non, changer seulement pour cette date
+           <input id="no" type="radio" name="radio">
+            <span class="checkmark"></span>
+        </label>
+
+       <label for='yes' class="container_radio_button">Oui, changer pour toutes les dates
+           <input id="yes" type="radio" name="radio">
+           <span class="checkmark"></span>
+        </label>
+   </fieldset>
+
+
+    <form action="" method='POST' id="form_rec" data-eventid={{event.uuid}}>
+        {% csrf_token %}
+        {% include "event_form.html" %}
+        {% include "event_form_only_rec.html" %}
+        <input type='submit' id="confirm" value="Confirmer" class='input_btn'/>
+    </form>
+
+
+</div>
+</div>
+</div>
+{% endblock %}
