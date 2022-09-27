@@ -6,7 +6,7 @@ Application permettant à des gérants d'association de gérer les bénévoles e
 Le but de cette plateforme est de permettre aux gestionnaires de distribution de repas chaud à des personnes en difficultés d'avoir une meilleure gestion des présences des bénévoles de l'association par site de distribution et faciliter la vie des bénévoles, le tout, en améliorant la communication entre eux.
 
 ### Demo de la plateforme
-[Live demo: association bénévoles/événements](https://association-benevoles.onrender.com/)
+[Live demo: association bénévoles/événements](https://association.pythonanywhere.com/)
 </br>
 
 ### Fonctionnalités principales
